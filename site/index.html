@@ -1,0 +1,740 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Équipe</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --card: #fff; --text: #1a1d21; --muted: #6b7280;
+    --line: #e5e7eb; --accent: #c8102e; --hl: #fff4d6; --pill: #e7e7e9;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #111317; --card: #1a1d23; --text: #e8eaed; --muted: #9aa0a6;
+            --line: #2c313a; --accent: #ff5a6e; --hl: #3a3220; --pill: #2c313a; }
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { margin: 0; font: 15px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+         background: var(--bg); color: var(--text); }
+  main { max-width: 900px; margin: 0 auto; padding: 20px 12px 40px; }
+
+  header.team-head { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+  header.team-head img { width: 48px; height: 48px; object-fit: contain; }
+  h1 { font-size: 1.4rem; margin: 0; }
+  .sub { color: var(--muted); margin: 0; font-size: .9rem; }
+
+  nav.tabs { display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto; }
+  nav.tabs a { padding: 8px 18px; border-radius: 999px; border: 1px solid var(--line);
+               background: var(--card); color: var(--text); text-decoration: none;
+               font-weight: 600; white-space: nowrap; }
+  nav.tabs a[aria-current="page"] { background: var(--pill); border-color: var(--pill); }
+  nav.bs-tabs { margin: 18px 0 10px; }
+  nav.bs-tabs button { padding: 6px 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--card);
+                       color: var(--text); font: inherit; font-weight: 600; cursor: pointer; }
+  nav.bs-tabs button[aria-selected="true"] { background: var(--pill); border-color: var(--pill); }
+
+  h2 { font-size: 1rem; margin: 20px 0 8px; }
+  h2:first-child { margin-top: 0; }
+  .meta { color: var(--muted); font-size: .9rem; margin: 0 0 10px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+  th, td { padding: 8px 10px; text-align: right; white-space: nowrap; }
+  th { font-size: .75rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted);
+       border-bottom: 1px solid var(--line); font-weight: 600; }
+  td { border-bottom: 1px solid var(--line); }
+  tr:last-child td { border-bottom: 0; }
+  .l { text-align: left; }
+  td.team { display: flex; align-items: center; gap: 8px; font-weight: 500; }
+  td.team img { width: 24px; height: 24px; object-fit: contain; flex: none; }
+  td.rank, td.num { color: var(--muted); width: 1%; }
+  td.num { font-weight: 700; color: var(--text); }
+  td.pts { font-weight: 700; }
+  tr.mine td { background: var(--hl); }
+  tr.mine td.team { color: var(--accent); font-weight: 700; }
+  td.team a { color: inherit; text-decoration: none; }
+  td.team a:hover { text-decoration: underline; }
+  .pos { color: #15803d; } .neg { color: var(--accent); }
+  @media (prefers-color-scheme: dark) { .pos { color: #4ade80; } }
+  .badge { display: inline-block; margin-left: 6px; padding: 0 6px; border-radius: 4px;
+           font-size: .75rem; font-weight: 700; background: var(--accent); color: #fff; }
+  /* Horaire */
+  h2.month { text-transform: capitalize; margin: 18px 0 8px; }
+  h2.month:first-child { margin-top: 0; }
+  .event { display: grid; grid-template-columns: 7.5em 1fr auto; gap: 10px; align-items: center;
+           padding: 10px 12px; border-bottom: 1px solid var(--line); }
+  .event:last-child { border-bottom: 0; }
+  .event.past > .when, .event.past > .what { opacity: .6; } /* score + "Détails" stay fully visible */
+  .event.next { background: var(--hl); opacity: 1; }
+  .when .day { font-weight: 600; } .when .time, .where { color: var(--muted); font-size: .85rem; }
+  .what { min-width: 0; } .where { overflow-wrap: anywhere; }
+  .title { font-weight: 500; } .title a { color: inherit; }
+  .tag { display: inline-block; margin-right: 8px; padding: 1px 7px; border-radius: 4px; font-size: .72rem;
+         font-weight: 700; text-transform: uppercase; letter-spacing: .03em; vertical-align: 1px; }
+  .tag-league { background: #dbeafe; color: #1e40af; }
+  .tag-tournament { background: #ede4fd; color: #6b21a8; }
+  .tag-other { background: #d9f2ec; color: #0f6b57; }
+  .tag-practice { background: #fde7cf; color: #9a4a00; }
+  @media (prefers-color-scheme: dark) {
+    .tag-league { background: #1e3a5f; color: #bfdbfe; }
+    .tag-tournament { background: #3b2160; color: #e3d0fd; }
+    .tag-other { background: #133f36; color: #a7ecd9; }
+    .tag-practice { background: #4a2d12; color: #fed7aa; }
+  }
+  .res { font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .res.win { color: #15803d; } .res.loss { color: var(--accent); } .res.tie, .res.cancelled { color: var(--muted); }
+  @media (prefers-color-scheme: dark) { .res.win { color: #4ade80; } }
+  .res.pill { display: inline-block; font-weight: 700; padding: 4px 12px; border-radius: 999px;
+              border: 1px solid currentColor; background: transparent; }
+  .result { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
+  .more { font-size: .75rem; font-weight: 600; color: var(--muted); white-space: nowrap; }
+  /* played games: the whole row is the tap target */
+  .clickable { cursor: pointer; }
+  .clickable:hover, .clickable:focus-visible { background: var(--pill); }
+  .clickable:hover .more, .clickable:focus-visible .more { color: var(--text); }
+  .clickable:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  tr.clickable:hover td, tr.clickable:focus-visible td { background: var(--pill); }
+  .res.pill.win { background: #dcfce7; border-color: #bbf7d0; }
+  .res.pill.loss { background: #fde2e4; border-color: #fbcfd3; }
+  .res.pill.tie { background: var(--pill); border-color: var(--pill); }
+  @media (prefers-color-scheme: dark) {
+    .res.pill.win { background: #12361f; border-color: #1d5a33; }
+    .res.pill.loss { background: #45161d; border-color: #6b2330; }
+  }
+
+  /* Box score modal */
+  dialog#boxscore { width: min(680px, calc(100vw - 16px)); max-height: calc(100dvh - 32px); padding: 0; overflow: hidden;
+                    border: 1px solid var(--line); border-radius: 12px; background: var(--bg); color: var(--text); }
+  /* bar stays put, only the body scrolls */
+  dialog#boxscore[open] { display: flex; flex-direction: column; }
+  .dlg-inner { display: flex; flex-direction: column; min-height: 0; flex: 1; }
+  .dlg-body { overflow-y: auto; overscroll-behavior: contain; min-height: 0; }
+  dialog#boxscore.wide { width: min(880px, calc(100vw - 16px)); }
+  dialog#boxscore::backdrop { background: rgb(0 0 0 / .45); }
+  .dlg-bar { flex: none; display: flex; justify-content: space-between; align-items: center;
+             padding: 10px 14px; background: var(--card); border-bottom: 1px solid var(--line); }
+  .dlg-close { background: none; border: 0; font-size: 1.1rem; color: var(--muted); cursor: pointer; padding: 4px 8px; }
+  .dlg-close:hover { color: var(--text); }
+  .dlg-body { padding: 14px; }
+  .dlg-body h3 { font-size: .95rem; margin: 18px 0 8px; }
+  .bs-head { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px; text-align: center; }
+  .bs-team { display: flex; flex-direction: column; align-items: center; gap: 4px; font-weight: 600; }
+  .bs-team img { width: 44px; height: 44px; object-fit: contain; }
+  .bs-team small { color: var(--muted); font-weight: 400; font-size: .75rem; }
+  .bs-team.winner span, tr.winner td.team { color: #15803d; }
+  tr.winner td.team { font-weight: 700; }
+  @media (prefers-color-scheme: dark) { .bs-team.winner span, tr.winner td.team { color: #4ade80; } }
+  .bs-score { font-size: 2rem; font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .bs-score span { color: var(--muted); margin: 0 6px; }
+  .bs-meta { text-align: center; margin-top: 10px; }
+  .logo-sm { width: 22px; height: 22px; object-fit: contain; vertical-align: middle; }
+  .bs-period { padding: 6px 12px; font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+               color: var(--muted); background: var(--bg); border-bottom: 1px solid var(--line); }
+  .bs-row { display: grid; grid-template-columns: 3.2em 26px 1fr; gap: 8px; align-items: center;
+            padding: 8px 12px; border-bottom: 1px solid var(--line); }
+  .bs-row:last-child { border-bottom: 0; }
+  .bs-row.mine { background: var(--hl); }
+  .bs-time { color: var(--muted); font-variant-numeric: tabular-nums; }
+  .bs-teamtag { display: inline-flex; }
+  .bs-who small { display: block; color: var(--muted); font-size: .82rem; }
+  .bs-who .badge { vertical-align: 1px; }
+  /* Player stats */
+  .stat-pill { padding: 2px 10px; border-radius: 999px; border: 1px solid var(--line);
+               background: var(--pill); color: var(--text); font: inherit; font-size: .78rem; font-weight: 600; cursor: pointer; }
+  .stat-pill:hover { filter: brightness(.95); }
+  @media (prefers-color-scheme: dark) { .stat-pill:hover { filter: brightness(1.2); } }
+  .ps-head { display: flex; align-items: center; gap: 12px; }
+  .ps-num { min-width: 52px; height: 52px; padding: 0 8px; border-radius: 10px; background: var(--pill); display: grid; place-items: center;
+            font-size: 1.5rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .ps-name { font-size: 1.2rem; font-weight: 700; }
+  .ps-head .meta { margin: 0; }
+  tr.total td { font-weight: 700; }
+  .ps-note { margin-top: 12px; font-size: .8rem; }
+  .status { padding: 24px; text-align: center; color: var(--muted); }
+  footer { margin-top: 12px; color: var(--muted); font-size: .8rem; }
+
+  /* ---------- Phones ---------- */
+  @media (max-width: 560px) {
+    body { font-size: 14px; }
+    main { padding: 14px 10px 32px; }
+    h1 { font-size: 1.2rem; }
+    header.team-head img { width: 40px; height: 40px; }
+
+    /* tabs share the width instead of overflowing */
+    nav.tabs { gap: 6px; }
+    nav.tabs a, nav.bs-tabs button { flex: 1; text-align: center; padding: 8px 6px; font-size: .85rem; }
+
+    /* tables: fewer columns, names may wrap */
+    .opt { display: none; }
+    th, td { padding: 7px 5px; }
+    th { font-size: .68rem; letter-spacing: .02em; }
+    td.l, th.l, td.team { white-space: normal; }
+    td.team { gap: 6px; line-height: 1.25; }
+    td.team img { width: 20px; height: 20px; }
+    .stat-pill { padding: 3px 9px; }
+
+    /* Horaire: date + time on one line, details below, result on the right */
+    .event { grid-template-columns: 1fr auto; grid-template-areas: "when result" "what result";
+             gap: 2px 10px; padding: 9px 10px; }
+    .when { grid-area: when; display: flex; gap: 6px; align-items: baseline; }
+    .when .day { white-space: nowrap; } .when .time { white-space: nowrap; }
+    .what { grid-area: what; }
+    .result { grid-area: result; }
+    .res.pill { padding: 4px 10px; }
+
+    /* dialogs become full-screen sheets */
+    dialog#boxscore, dialog#boxscore.wide { width: 100vw; max-width: 100vw; height: 100dvh; max-height: 100dvh;
+                                            margin: 0; border: 0; border-radius: 0; }
+    .dlg-body { padding: 12px 10px; }
+    .bs-head { gap: 6px; }
+    .bs-team { font-size: .85rem; }
+    .bs-team img { width: 36px; height: 36px; }
+    .bs-score { font-size: 1.6rem; }
+    .bs-score span { margin: 0 3px; }
+    .bs-row { grid-template-columns: 2.8em 22px 1fr; gap: 6px; padding: 8px 10px; }
+    .ps-num { min-width: 44px; height: 44px; font-size: 1.25rem; }
+    /* per-game stats: tag on its own line above the opponent */
+    .ps-games td.l .tag { display: table; margin-bottom: 2px; }
+    .ps-games td:first-child { white-space: nowrap; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <header class="team-head">
+    <img id="logo" alt="" hidden>
+    <div>
+      <h1 id="team-name">Chargement…</h1>
+      <p class="sub" id="team-sub"></p>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <a href="#cahier">Cahier d'équipe</a>
+    <a href="#horaire">Horaire</a>
+    <a href="#classement">Classement</a>
+  </nav>
+
+  <section id="view"><div class="card"><div class="status">Chargement…</div></div></section>
+  <footer>Source : Spordle Play · <span id="updated"></span></footer>
+</main>
+
+<dialog id="boxscore" aria-label="Sommaire du match">
+  <div class="dlg-inner">
+    <div class="dlg-bar"><strong id="dlg-title">Sommaire du match</strong><button type="button" class="dlg-close" aria-label="Fermer">✕</button></div>
+    <div class="dlg-body"></div>
+  </div>
+</dialog>
+
+<script>
+const API = 'https://pub-api.play.spordle.com/api/sp';
+const API_KEY = 'f08ed9064e3cdc382e6abb305ff543d0150fb52f'; // from DevTools on page.spordle.com
+const LEAGUE_ID = 201289;  // LHRO M11 BB - Saison régulière (2026-27) — home page standings
+const MY_TEAM_ID = 214085; // FESTIVALS HULL — highlighted on the home page
+const TEAM_ID = Number(new URLSearchParams(location.search).get('team')) || null; // null = home page
+
+// ---------- helpers ----------
+async function api(path, filter) {
+  const url = `${API}${path}` + (filter ? `?filter=${encodeURIComponent(JSON.stringify(filter))}` : '');
+  const res = await fetch(url, { headers: { Authorization: `API-Key ${API_KEY}` } });
+  if (!res.ok) throw new Error(`${res.status} ${res.statusText} — ${path}`);
+  return res.json();
+}
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+// "JEAN-PHILIP BRUNET BÉLISLE" -> "Jean-Philip Brunet Bélisle"
+const nameCase = s => String(s ?? '').toLocaleLowerCase('fr').replace(/(^|[\s\-'])(\p{L})/gu, (m, p, c) => p + c.toLocaleUpperCase('fr'));
+const card = html => `<div class="card">${html}</div>`;
+const statusBox = msg => card(`<div class="status">${msg}</div>`);
+const once = fn => { let p; return () => (p ??= fn()); };
+
+// Shared data, fetched once
+const getTeam = once(() => api(`/teams/${TEAM_ID}`));
+const getSchedules = once(() => api(`/teams/${TEAM_ID}/schedules`));
+
+// ---------- Cahier d'équipe ----------
+const PLAYER_POS = { F: 'Avant', C: 'Centre', D: 'Défenseur', G: 'Gardien' };
+const STAFF_ROLE = {
+  'Head Coach': 'Entraîneur-chef',
+  'Assistant Coach': 'Entraîneur adjoint',
+  'Goaltending Coach': 'Entraîneur des gardiens',
+  'Manager': 'Gérant',
+  'Trainer': 'Soigneur',
+  'Safety Person': 'Responsable de la sécurité',
+};
+const STAFF_ORDER = Object.keys(STAFF_ROLE);
+
+const rosterById = new Map(); // participantId -> member, filled by renderCahier
+const playerPos = m => m.positions.filter(p => p in PLAYER_POS).map(p => PLAYER_POS[p]).join(', ');
+
+async function renderCahier() {
+  const members = await api('/members', {
+    where: {
+      positions: { inq: [...Object.keys(PLAYER_POS), ...STAFF_ORDER] },
+      isAffiliate: false,
+      isReleased: false,
+      teamId: TEAM_ID,
+    },
+  });
+  const isPlayer = m => m.positions.some(p => p in PLAYER_POS);
+  const players = members.filter(isPlayer).sort((a, b) => (a.number ?? 999) - (b.number ?? 999));
+  const staff = members.filter(m => !isPlayer(m)).sort((a, b) =>
+    Math.min(...a.positions.map(p => STAFF_ORDER.indexOf(p))) - Math.min(...b.positions.map(p => STAFF_ORDER.indexOf(p))));
+
+  players.forEach(m => rosterById.set(m.participantId, m));
+  const name = m => esc(nameCase(m.participant?.fullName));
+  const playerRows = players.map(m => `<tr>
+      <td class="num">${m.number ?? ''}</td>
+      <td class="l">${name(m)}${m.isCaptain ? '<span class="badge">C</span>' : ''}${m.isAlternate ? '<span class="badge">A</span>' : ''}</td>
+      <td class="l">${playerPos(m)}</td>
+      <td><button type="button" class="stat-pill" data-player="${m.participantId}" title="Statistiques de ${name(m)}">Stats</button></td>
+    </tr>`).join('');
+  const staffRows = staff.map(m => `<tr>
+      <td class="l">${name(m)}</td>
+      <td class="l">${m.positions.map(p => STAFF_ROLE[p] ?? p).join(', ')}</td>
+    </tr>`).join('');
+
+  return `
+    <h2>Joueurs (${players.length})</h2>
+    ${players.length ? card(`<table><thead><tr><th>#</th><th class="l">Nom</th><th class="l">Position</th><th></th></tr></thead><tbody>${playerRows}</tbody></table>`) : statusBox('Aucun joueur')}
+    <h2>Personnel (${staff.length})</h2>
+    ${staff.length ? card(`<table><thead><tr><th class="l">Nom</th><th class="l">Rôle</th></tr></thead><tbody>${staffRows}</tbody></table>`) : statusBox('Aucun membre du personnel')}`;
+}
+
+// ---------- Horaire ----------
+const gamesById = new Map(); // id -> { game, sched }, filled by renderHoraire for the box score modal
+const SCHEDULE_TYPE = { League: 'Saison', Tournament: 'Tournoi', Exhibition: 'Hors concours', Playoffs: 'Séries' };
+const GAME_STATUS = { Cancelled: 'Annulé', Postponed: 'Remis', Forfeit: 'Forfait', Rescheduled: 'Reporté' };
+
+// Season "2026-27" -> ["2026-08-01", "2027-07-31"]
+function seasonRange(seasonId) {
+  const y = Number(String(seasonId).slice(0, 4)) || new Date().getFullYear();
+  return [`${y}-08-01`, `${y + 1}-07-31`];
+}
+
+// The team's games for the season — shared by Horaire and the player stats modal
+const getGames = once(async () => {
+  const [team, schedules] = await Promise.all([getTeam(), getSchedules()]);
+  const games = await api('/games', {
+    order: ['startTime ASC', 'number ASC'],
+    where: { and: [
+      { date: { between: seasonRange(team.seasonId) } },
+      { or: [{ awayTeamId: TEAM_ID }, { homeTeamId: TEAM_ID }] },
+    ] },
+    include: ['teamStats', 'surface', 'awayTeam', 'homeTeam'],
+  });
+  const schedById = Object.fromEntries(schedules.map(s => [s.id, s]));
+  games.forEach(g => gamesById.set(g.id, { game: g, sched: schedById[g.scheduleId] }));
+  return games;
+});
+const isPlayed = g => g.score && Object.keys(g.score).length && !GAME_STATUS[g.status];
+
+// Box scores, fetched once per game
+const boxScores = new Map();
+function getBoxScore(gameId) {
+  if (!boxScores.has(gameId))
+    boxScores.set(gameId, api(`/games/${gameId}/boxScore`).catch(err => { boxScores.delete(gameId); throw err; }));
+  return boxScores.get(gameId);
+}
+
+async function renderHoraire() {
+  const team = await getTeam();
+  const range = seasonRange(team.seasonId);
+  const [games, practices] = await Promise.all([
+    getGames(),
+    // practices require an office filter: use the selected team's own office
+    api('/practices', {
+      where: {
+        date: { between: range },
+        venue: { neq: null },
+        or: [{ officeId: team.officeId }, { secondaryOfficeId: team.officeId }],
+        teams: { id: TEAM_ID },
+      },
+      fields: { recurrence: false },
+      include: ['practiceType', 'surface', 'teams'],
+    }),
+  ]);
+
+  const events = [
+    ...games.map(g => ({ kind: 'game', start: g.startTime, end: g.endTime, tz: g.timezone, data: g, sched: gamesById.get(g.id)?.sched })),
+    ...practices.map(p => ({ kind: 'practice', start: p.startTime, end: p.endTime, tz: p.timezone, data: p })),
+  ].sort((a, b) => new Date(a.start) - new Date(b.start));
+
+  return horaireList(events);
+}
+
+const fmt = (iso, tz, opts) => new Date(iso).toLocaleString('fr-CA', { timeZone: tz || 'America/Toronto', ...opts });
+const venueText = s => s ? [s.venue?.name, s.name].filter(Boolean).join(' · ') : '';
+
+function horaireList(events) {
+  if (!events.length) return statusBox('Aucun événement');
+
+  const now = Date.now();
+  const nextIdx = events.findIndex(e => new Date(e.end || e.start) >= now);
+  let html = '', month = '';
+  events.forEach((e, i) => {
+    const m = fmt(e.start, e.tz, { month: 'long', year: 'numeric' });
+    if (m !== month) {
+      html += `${month ? '</div>' : ''}<h2 class="month">${esc(m)}</h2><div class="card events">`;
+      month = m;
+    }
+    html += eventRow(e, i === nextIdx, new Date(e.end || e.start) < now);
+  });
+  return html + '</div>';
+}
+
+// Played game: coloured score + "Détails ›" hint. The whole row (not just the score) opens the box score.
+const scoreResult = (RES, mine, theirs) =>
+  `<span class="res pill ${RES?.[1] ?? ''}">${RES ? RES[0] + ' ' : ''}${mine}–${theirs}</span><span class="more">Détails ›</span>`;
+const gameRowAttrs = id => ` data-game="${id}" role="button" tabindex="0" title="Voir le sommaire du match"`;
+
+function eventRow(e, isNext, isPast) {
+  const d = e.data;
+  const day = fmt(e.start, e.tz, { weekday: 'short', day: 'numeric', month: 'short' });
+  const time = fmt(e.start, e.tz, { hour: '2-digit', minute: '2-digit' }) +
+    (e.end ? '–' + fmt(e.end, e.tz, { hour: '2-digit', minute: '2-digit' }) : '');
+  const cls = ['event', e.kind, isNext ? 'next' : '', isPast ? 'past' : ''].join(' ');
+  const when = `<div class="when"><div class="day">${esc(day)}</div><div class="time">${esc(time)}</div></div>`;
+
+  if (e.kind === 'practice') {
+    const type = d.practiceType?.i18n?.fr?.name ?? d.practiceType?.name ?? ''; // the tag already says "Pratique"
+    const others = (d.teams || []).filter(t => t.id !== TEAM_ID).map(t => t.name);
+    return `<div class="${cls}">${when}
+      <div class="what">
+        <div class="title"><span class="tag tag-practice">Pratique</span>${esc(type)}</div>
+        <div class="where">${esc(venueText(d.surface))}${others.length ? ` · avec ${esc(others.join(', '))}` : ''}${d.comments ? ` · ${esc(d.comments)}` : ''}</div>
+      </div><div class="result"></div></div>`;
+  }
+
+  const home = d.homeTeamId === TEAM_ID;
+  const opp = home ? d.awayTeam : d.homeTeam;
+  const oppId = home ? d.awayTeamId : d.homeTeamId;
+  const mine = d.score?.[TEAM_ID], theirs = d.score?.[oppId];
+  const res = (d.teamStats || []).find(s => s.teamId === TEAM_ID)?.gameResult;
+  const RES = { win: ['V', 'win'], loss: ['D', 'loss'], tie: ['N', 'tie'] }[res];
+  let result = '', rowAttrs = '';
+  if (GAME_STATUS[d.status]) result = `<span class="res cancelled">${GAME_STATUS[d.status]}</span>`;
+  else if (mine != null && theirs != null) {
+    result = scoreResult(RES, mine, theirs);
+    rowAttrs = gameRowAttrs(d.id); // whole row opens the box score
+  }
+  const schedLabel = SCHEDULE_TYPE[e.sched?.type] ?? 'Match';
+  const tagCls = { League: 'tag-league', Tournament: 'tag-tournament' }[e.sched?.type] ?? 'tag-other';
+  const oppLink = opp ? `<a href="?team=${encodeURIComponent(oppId)}#horaire">${esc(opp.name)}</a>` : 'À déterminer';
+
+  return `<div class="${cls}${rowAttrs ? ' clickable' : ''}"${rowAttrs}>${when}
+    <div class="what">
+      <div class="title"><span class="tag ${tagCls}" title="${esc(e.sched?.name ?? '')}">${esc(schedLabel)}</span>${home ? 'vs' : '@'} ${oppLink}</div>
+      <div class="where">${esc(venueText(d.surface))}${d.number ? ` · #${esc(d.number)}` : ''}</div>
+    </div><div class="result">${result}</div></div>`;
+}
+
+// ---------- Sommaire du match (box score modal) ----------
+const periodLabel = p => /^\d+$/.test(p) ? `${p}${p === '1' ? 're' : 'e'} période`
+  : ({ OT: 'Prolongation', SO: 'Tirs de barrage' }[p] ?? `Période ${p}`);
+const clock = t => `${t?.elapsedMinutes ?? 0}:${String(t?.elapsedSeconds ?? 0).padStart(2, '0')}`;
+const byTime = (a, b) => String(a.gameTime?.period).localeCompare(String(b.gameTime?.period), undefined, { numeric: true }) ||
+  ((a.gameTime?.elapsedMinutes ?? 0) * 60 + (a.gameTime?.elapsedSeconds ?? 0)) - ((b.gameTime?.elapsedMinutes ?? 0) * 60 + (b.gameTime?.elapsedSeconds ?? 0));
+const player = p => p ? `${p.number != null ? `#${esc(p.number)} ` : ''}${esc(nameCase(p.fullName))}` : '';
+
+// Opens the shared dialog (or reuses it if already open) and returns its body element
+// wide: player stats need more room than the box score (per-game table)
+function openDialog(title, wide = false) {
+  const dlg = document.getElementById('boxscore');
+  dlg.classList.toggle('wide', wide);
+  dlg.querySelector('#dlg-title').textContent = title;
+  dlg.setAttribute('aria-label', title);
+  const body = dlg.querySelector('.dlg-body');
+  body.innerHTML = '<div class="status">Chargement…</div>';
+  if (!dlg.open) dlg.showModal();
+  body.scrollTop = 0; // the body is the scrolling area
+  return body;
+}
+
+async function openBoxScore(gameId) {
+  const body = openDialog('Sommaire du match');
+  try {
+    const box = await getBoxScore(gameId);
+    body.innerHTML = boxScoreHtml(box, gamesById.get(gameId));
+  } catch (err) {
+    console.error(err);
+    body.innerHTML = `<div class="status">Impossible de charger le sommaire.<br><small>${esc(err.message)}</small></div>`;
+  }
+}
+
+function boxScoreHtml(box, info) {
+  const g = info?.game ?? {};
+  // away first, home second (as on a scoreboard)
+  const teams = [...box.teams].sort((a, b) => (a.id === g.homeTeamId) - (b.id === g.homeTeamId));
+  const teamById = Object.fromEntries(teams.map(t => [t.id, t]));
+  const goals = [...box.goals].sort(byTime);
+  const penalties = [...box.penalties].sort(byTime);
+  const periods = [...new Set(['1', '2', '3', ...goals.map(x => String(x.gameTime?.period))])]
+    .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+  const count = (teamId, p) => goals.filter(x => x.teamId === teamId && (p == null || String(x.gameTime?.period) === p)).length;
+  const logo = t => t?.logoUrl ? `<img src="${esc(t.logoUrl)}" alt="" class="logo-sm">` : '';
+  const total = t => g.score?.[t.id] ?? count(t.id);
+  const [s0, s1] = teams.map(total);
+  const winnerId = s0 > s1 ? teams[0].id : s1 > s0 ? teams[1].id : null; // null on a tie
+
+  const head = `
+    <div class="bs-head">
+      ${teams.map((t, i) => `
+        <div class="bs-team ${t.id === winnerId ? 'winner' : ''}">${logo(t)}<span>${esc(t.name)}</span><small>${t.id === g.homeTeamId ? 'Local' : 'Visiteur'}</small></div>
+        ${i === 0 ? `<div class="bs-score">${total(teams[0])}<span>–</span>${total(teams[1])}</div>` : ''}`).join('')}
+    </div>
+    <p class="meta bs-meta">${[
+      g.startTime && fmt(g.startTime, g.timezone, { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }),
+      venueText(g.surface),
+      info?.sched?.name,
+      box.gameNumber && `#${box.gameNumber}`,
+    ].filter(Boolean).map(esc).join(' · ')}</p>`;
+
+  const byPeriod = `
+    <div class="card"><table>
+      <thead><tr><th class="l">Équipe</th>${periods.map(p => `<th>${/^\d+$/.test(p) ? p : esc(p)}</th>`).join('')}<th>T</th></tr></thead>
+      <tbody>${teams.map(t => `<tr class="${t.id === winnerId ? 'winner' : ''}"><td class="l team">${logo(t)}${esc(t.name)}</td>
+        ${periods.map(p => `<td>${count(t.id, p)}</td>`).join('')}<td class="pts">${total(t)}</td></tr>`).join('')}</tbody>
+    </table></div>`;
+
+  const FLAGS = [['isPowerplay', 'AN', 'Avantage numérique'], ['isShorthanded', 'DN', 'Désavantage numérique'],
+                 ['isEmptyNet', 'FD', 'Filet désert'], ['isPenaltyShot', 'TP', 'Tir de pénalité'], ['isOwnGoal', 'CSC', 'Contre son camp']];
+  const grouped = (items, rowFn, empty) => {
+    if (!items.length) return `<div class="card"><div class="status">${empty}</div></div>`;
+    let html = '', cur;
+    for (const x of items) {
+      const p = String(x.gameTime?.period);
+      if (p !== cur) { html += `<div class="bs-period">${esc(periodLabel(p))}</div>`; cur = p; }
+      html += rowFn(x);
+    }
+    return `<div class="card">${html}</div>`;
+  };
+  const teamTag = id => `<span class="bs-teamtag" title="${esc(teamById[id]?.name)}">${logo(teamById[id])}</span>`;
+
+  const goalRows = grouped(goals, x => `
+    <div class="bs-row ${x.teamId === TEAM_ID ? 'mine' : ''}">
+      <span class="bs-time">${clock(x.gameTime)}</span>${teamTag(x.teamId)}
+      <span class="bs-who"><strong>${player(x.participant)}</strong>
+        ${FLAGS.filter(([k]) => x[k]).map(([, a, t]) => `<span class="badge" title="${t}">${a}</span>`).join('')}
+        <small>${x.assists?.length ? 'Passes : ' + x.assists.map(player).join(', ') : 'Sans aide'}</small></span>
+    </div>`, 'Aucun but');
+
+  const penaltyRows = grouped(penalties, x => `
+    <div class="bs-row ${x.teamId === TEAM_ID ? 'mine' : ''}">
+      <span class="bs-time">${clock(x.gameTime)}</span>${teamTag(x.teamId)}
+      <span class="bs-who"><strong>${x.isBenchPenalty ? 'Pénalité de banc' : player(x.participant)}</strong>
+        <small>${esc(x.i18n?.fr?.infraction ?? x.infraction)}${x.duration ? ` · ${esc(x.duration.i18n?.fr?.name ?? x.duration.name)}` : ''}</small></span>
+    </div>`, 'Aucune pénalité');
+
+  const shootout = box.shootout?.length ? `<h3>Tirs de barrage</h3>${grouped(box.shootout.map(s => ({ ...s, gameTime: { period: 'SO' } })), x => `
+    <div class="bs-row ${x.teamId === TEAM_ID ? 'mine' : ''}">${teamTag(x.teamId)}
+      <span class="bs-who"><strong>${player(x.participant)}</strong></span></div>`, '')}` : '';
+
+  return `${head}<h3>Pointage par période</h3>${byPeriod}
+    <nav class="tabs bs-tabs" role="tablist">
+      <button type="button" role="tab" data-bstab="buts" aria-selected="true">Buts (${goals.length})</button>
+      <button type="button" role="tab" data-bstab="penalites" aria-selected="false">Pénalités (${penalties.length})</button>
+    </nav>
+    <div data-bspanel="buts">${goalRows}${shootout}</div>
+    <div data-bspanel="penalites" hidden>${penaltyRows}</div>`;
+}
+
+function selectBoxScoreTab(name) {
+  const dlg = document.getElementById('boxscore');
+  dlg.querySelectorAll('[data-bstab]').forEach(b => b.setAttribute('aria-selected', String(b.dataset.bstab === name)));
+  dlg.querySelectorAll('[data-bspanel]').forEach(p => { p.hidden = p.dataset.bspanel !== name; });
+}
+
+// ---------- Statistiques d'un joueur (modal, built from the box scores of played games) ----------
+const PIM = { Minor: 2, 'Double Minor': 4, Major: 5, Misconduct: 10, 'Game Misconduct': 10 }; // unknown → 0 min
+
+async function openPlayerStats(pid) {
+  const m = rosterById.get(pid);
+  const body = openDialog('Statistiques', true);
+  try {
+    const played = (await getGames()).filter(isPlayed);
+    const boxes = await Promise.all(played.map(g => getBoxScore(g.id)));
+
+    const rows = played.map((g, i) => {
+      const box = boxes[i];
+      const goals = box.goals.filter(x => x.teamId === TEAM_ID && x.participant?.participantId === pid).length;
+      const assists = box.goals.filter(x => x.teamId === TEAM_ID && x.assists?.some(a => a.participantId === pid)).length;
+      const pens = box.penalties.filter(x => x.teamId === TEAM_ID && x.participant?.participantId === pid);
+      const pim = pens.reduce((s, x) => s + (PIM[x.duration?.name] ?? 0), 0);
+      return { g, sched: gamesById.get(g.id)?.sched, goals, assists, pts: goals + assists, pens: pens.length, pim };
+    });
+
+    const sum = list => list.reduce((t, r) => ({ goals: t.goals + r.goals, assists: t.assists + r.assists, pts: t.pts + r.pts, pens: t.pens + r.pens, pim: t.pim + r.pim, n: t.n + 1 }),
+      { goals: 0, assists: 0, pts: 0, pens: 0, pim: 0, n: 0 });
+    const types = [...new Set(rows.map(r => r.sched?.type))];
+    const statCells = t => `<td>${t.goals}</td><td>${t.assists}</td><td class="pts">${t.pts}</td><td class="opt">${t.pens}</td><td>${t.pim}</td>`;
+    const total = sum(rows);
+
+    const summary = card(`<table>
+      <thead><tr><th class="l"></th><th title="Buts">B</th><th title="Passes">A</th><th title="Points">PTS</th><th class="opt" title="Pénalités">PÉN</th><th title="Minutes de pénalité">PUN</th></tr></thead>
+      <tbody>
+        ${types.length > 1 ? types.map(t => { const s = sum(rows.filter(r => r.sched?.type === t)); return `<tr><td class="l">${esc(SCHEDULE_TYPE[t] ?? 'Autre')}</td>${statCells(s)}</tr>`; }).join('') : ''}
+        <tr class="total"><td class="l">Total</td>${statCells(total)}</tr>
+      </tbody></table>`);
+
+    const withStats = rows.filter(r => r.pts || r.pens);
+    const perGame = withStats.length ? card(`<table class="ps-games">
+      <thead><tr><th class="l">Date</th><th class="l">Match</th><th>B</th><th>A</th><th>PTS</th><th class="opt">PÉN</th><th>PUN</th><th></th></tr></thead>
+      <tbody>${withStats.map(r => {
+        const g = r.g, home = g.homeTeamId === TEAM_ID, opp = home ? g.awayTeam : g.homeTeam, oppId = home ? g.awayTeamId : g.homeTeamId;
+        const res = (g.teamStats || []).find(s => s.teamId === TEAM_ID)?.gameResult;
+        const RES = { win: ['V', 'win'], loss: ['D', 'loss'], tie: ['N', 'tie'] }[res];
+        const tagCls = { League: 'tag-league', Tournament: 'tag-tournament' }[r.sched?.type] ?? 'tag-other';
+        return `<tr class="clickable"${gameRowAttrs(g.id)}>
+          <td class="l">${esc(fmt(g.startTime, g.timezone, { day: 'numeric', month: 'short' }))}</td>
+          <td class="l"><span class="tag ${tagCls}">${esc(SCHEDULE_TYPE[r.sched?.type] ?? 'Match')}</span>${home ? 'vs' : '@'} ${esc(opp?.name ?? '')}</td>
+          ${statCells(r)}
+          <td><div class="result">${scoreResult(RES, g.score[TEAM_ID], g.score[oppId])}</div></td>
+        </tr>`; }).join('')}</tbody></table>`) : card('<div class="status">Aucun point ni pénalité pour l\'instant</div>');
+
+    body.innerHTML = `
+      <div class="ps-head">
+        <div class="ps-num">${m?.number ?? ''}</div>
+        <div><div class="ps-name">${esc(nameCase(m?.participant?.fullName ?? ''))}</div><div class="meta">${esc(m ? playerPos(m) : '')}</div></div>
+      </div>
+      <h3>Totaux ${esc((await getTeam()).seasonId ?? '')}</h3>${summary}
+      <h3>Par match</h3>${perGame}
+      <p class="meta ps-note">Calculé à partir des sommaires des ${played.length} matchs joués par l'équipe.</p>`;
+  } catch (err) {
+    console.error(err);
+    body.innerHTML = `<div class="status">Impossible de charger les statistiques.<br><small>${esc(err.message)}</small></div>`;
+  }
+}
+
+document.addEventListener('click', ev => {
+  const btn = ev.target.closest?.('[data-game]');
+  if (btn && !ev.target.closest('a')) openBoxScore(Number(btn.dataset.game)); // links inside the row (opponent) keep working
+  const pl = ev.target.closest?.('[data-player]');
+  if (pl) openPlayerStats(Number(pl.dataset.player));
+  const tab = ev.target.closest?.('[data-bstab]');
+  if (tab) selectBoxScoreTab(tab.dataset.bstab);
+  const dlg = document.getElementById('boxscore');
+  if (ev.target === dlg || ev.target.closest?.('.dlg-close')) dlg.close(); // backdrop or ✕
+});
+
+// Keyboard: Enter/Space on a clickable game row
+document.addEventListener('keydown', ev => {
+  const row = ev.target.closest?.('[data-game][role="button"]');
+  if (row && ev.target === row && (ev.key === 'Enter' || ev.key === ' ')) { ev.preventDefault(); openBoxScore(Number(row.dataset.game)); }
+});
+
+// ---------- Classement ----------
+function standingRow(s, highlightId) {
+  const t = s.team || {};
+  const diff = s.diff ?? (s.goalFor - s.goalAgainst);
+  const diffCls = diff > 0 ? 'pos' : diff < 0 ? 'neg' : '';
+  const pct = s.gamesPlayed ? (s.pointsPct ?? 0).toFixed(3).replace(/^0/, '') : '—';
+  return `<tr class="${s.teamId === highlightId ? 'mine' : ''}">
+    <td class="rank">${esc(s.manualRanking ?? s.ranking ?? '')}</td>
+    <td class="team l">${t.logoUrl ? `<img src="${esc(t.logoUrl)}" alt="" loading="lazy">` : ''}<a href="?team=${encodeURIComponent(s.teamId)}#cahier">${esc(t.name)}</a></td>
+    <td>${s.gamesPlayed}</td>
+    <td>${s.wins}</td>
+    <td>${s.losses + (s.otl || 0) + (s.sol || 0)}</td>
+    <td>${s.ties}</td>
+    <td class="pts">${s.points}</td>
+    <td class="opt">${pct}</td>
+    <td class="opt">${s.goalFor}</td>
+    <td class="opt">${s.goalAgainst}</td>
+    <td class="${diffCls}">${diff > 0 ? '+' : ''}${diff}</td>
+    <td class="opt">${s.pim}</td>
+  </tr>`;
+}
+
+// Team tab: the team's own league, team highlighted
+async function renderClassement() {
+  const league = (await getSchedules()).find(s => s.type === 'League');
+  if (!league) return statusBox('Aucune ligue trouvée pour cette équipe.');
+  return standingsTable(league.id, league.name, TEAM_ID);
+}
+
+async function standingsTable(scheduleId, title, highlightId) {
+  const stats = await api(`/schedules/${scheduleId}/teamStats`, {
+    include: ['team'],
+    where: { team: { name: { neq: 'TBA' } } },
+  });
+  stats.sort((a, b) => (a.manualRanking ?? a.ranking ?? 999) - (b.manualRanking ?? b.ranking ?? 999));
+
+  return `
+    ${title ? `<h2>${esc(title)}</h2>` : ''}
+    <p class="meta">${stats.length} équipes · cliquez sur une équipe pour voir sa page</p>
+    ${card(`<table>
+      <thead><tr>
+        <th>#</th><th class="l">Équipe</th>
+        <th title="Parties jouées">PJ</th><th title="Victoires">V</th><th title="Défaites">D</th><th title="Nulles">N</th>
+        <th title="Points">PTS</th><th class="opt" title="% des points">%</th>
+        <th class="opt" title="Buts pour">BP</th><th class="opt" title="Buts contre">BC</th>
+        <th title="Différentiel">DIFF</th><th class="opt" title="Minutes de pénalité">PUN</th>
+      </tr></thead>
+      <tbody>${stats.map(s => standingRow(s, highlightId)).join('')}</tbody>
+    </table>`)}`;
+}
+
+// ---------- tabs / routing ----------
+const TABS = { cahier: renderCahier, horaire: renderHoraire, classement: renderClassement };
+const DEFAULT_TAB = 'cahier';
+let renderSeq = 0;
+
+async function show(render) {
+  const view = document.getElementById('view');
+  const seq = ++renderSeq;
+  view.innerHTML = statusBox('Chargement…');
+  try {
+    const html = await render();
+    if (seq !== renderSeq) return; // user switched tabs meanwhile
+    view.innerHTML = html;
+    document.getElementById('updated').textContent =
+      'mis à jour ' + new Date().toLocaleString('fr-CA', { dateStyle: 'medium', timeStyle: 'short' });
+  } catch (err) {
+    console.error(err);
+    if (seq !== renderSeq) return;
+    view.innerHTML = statusBox(`Impossible de charger les données.<br><small>${esc(err.message)}</small><br><small>Si c'est une erreur 422, la clé API a peut-être changé.</small>`);
+  }
+}
+
+// Home page: league standings
+async function home() {
+  document.querySelector('nav.tabs').hidden = true;
+  document.getElementById('team-name').textContent = 'Classement';
+  const sched = (await api(`/teams/${MY_TEAM_ID}/schedules`).catch(() => [])).find(s => s.id === LEAGUE_ID);
+  if (sched) {
+    document.getElementById('team-name').textContent = sched.name;
+    document.title = `Classement — ${sched.name}`;
+    document.getElementById('team-sub').textContent = 'Classement de la saison';
+  }
+  show(() => standingsTable(LEAGUE_ID, null, MY_TEAM_ID));
+}
+
+async function route() {
+  const tab = location.hash.slice(1) in TABS ? location.hash.slice(1) : DEFAULT_TAB;
+  document.querySelectorAll('nav.tabs a').forEach(a => a.removeAttribute('aria-current'));
+  document.querySelector(`nav.tabs a[href="#${tab}"]`).setAttribute('aria-current', 'page');
+  show(TABS[tab]);
+}
+
+async function loadHeader() {
+  try {
+    const t = await getTeam();
+    document.getElementById('team-name').textContent = t.name;
+    document.getElementById('team-sub').textContent = [t.division, t.seasonId].filter(Boolean).join(' · ');
+    document.title = t.name;
+    if (t.logoUrl) Object.assign(document.getElementById('logo'), { src: t.logoUrl, hidden: false });
+  } catch (err) {
+    console.error(err);
+    document.getElementById('team-name').textContent = `Équipe ${TEAM_ID}`;
+  }
+}
+
+if (TEAM_ID) {
+  window.addEventListener('hashchange', route);
+  loadHeader();
+  route();
+} else {
+  home();
+}
+</script>
+</body>
+</html>
